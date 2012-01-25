@@ -1,0 +1,75 @@
+--- origsrc/lightspark-0.5.3/CMakeLists.txt	2011-12-01 07:40:18.000000000 -0600
++++ src/lightspark-0.5.3/CMakeLists.txt	2011-12-27 04:01:47.339685400 -0600
+@@ -283,7 +283,7 @@ IF(CMAKE_COMPILER_IS_GNUCC)
+   IF(MINGW)
+     SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed,--no-undefined -mthreads -s ${CMAKE_EXE_LINKER_FLAGS}")
+     SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed,--no-undefined,--enable-stdcall-fixup -mthreads -s ${CMAKE_SHARED_LINKER_FLAGS}")
+-  ELSE()
++  ELSEIF(NOT CYGWIN)
+     SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed -Wl,--no-undefined ${CMAKE_EXE_LINKER_FLAGS}")
+     SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed,-z,noexecstack,--no-undefined ${CMAKE_SHARED_LINKER_FLAGS}")
+   ENDIF()
+@@ -319,7 +319,7 @@ IF(CMAKE_COMPILER_IS_GNUCC)
+ 	   "${CMAKE_CXX_FLAGS} -mms-bitfields -mthreads -fexceptions -Wall -Wnon-virtual-dtor -Woverloaded-virtual -pipe -std=c++0x -Wdisabled-optimization -Wextra -Wno-unused-parameter -Wno-invalid-offsetof")
+   ELSE()
+    SET(CMAKE_CXX_FLAGS
+-	  "${CMAKE_CXX_FLAGS} -Wall -Wnon-virtual-dtor -Woverloaded-virtual -pipe -fvisibility=hidden -fvisibility-inlines-hidden -std=c++0x -Wdisabled-optimization -Wextra -Wno-unused-parameter -Wno-invalid-offsetof")
++	  "${CMAKE_CXX_FLAGS} -Wall -Wnon-virtual-dtor -Woverloaded-virtual -pipe -std=gnu++0x -Wdisabled-optimization -Wextra -Wno-unused-parameter -Wno-invalid-offsetof")
+   ENDIF()
+   SET(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DEXPENSIVE_DEBUG")
+   SET(CMAKE_CXX_FLAGS_PROFILE "-g -pg -O2")
+--- origsrc/lightspark-0.5.3/src/backends/interfaces/audio/pulse/CMakeLists.txt	2011-12-01 07:40:18.000000000 -0600
++++ src/lightspark-0.5.3/src/backends/interfaces/audio/pulse/CMakeLists.txt	2011-12-27 04:36:37.608241900 -0600
+@@ -48,6 +48,9 @@ SET(PULSEPLUGIN_SOURCES PulsePlugin.cpp
+ ADD_LIBRARY(pulseplugin MODULE ${PULSEPLUGIN_SOURCES})
+ TARGET_LINK_LIBRARIES(pulseplugin spark) #Need to link some functions with the decoders
+ TARGET_LINK_LIBRARIES(pulseplugin ${PULSE_LIBS_LIBRARIES} ${Boost_LIBRARIES})
++IF(CYGWIN)
++  TARGET_LINK_LIBRARIES(pulseplugin intl)
++ENDIF(CYGWIN)
+ SET_TARGET_PROPERTIES(pulseplugin PROPERTIES OUTPUT_NAME lightsparkpulseplugin)
+ #SET_TARGET_PROPERTIES(pulseplugin PROPERTIES VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
+ #SET_TARGET_PROPERTIES(pulseplugin PROPERTIES SOVERSION "${MAJOR_VERSION}.${MINOR_VERSION}")
+--- origsrc/lightspark-0.5.3/src/backends/pluginmanager.cpp	2011-12-01 07:40:18.000000000 -0600
++++ src/lightspark-0.5.3/src/backends/pluginmanager.cpp	2012-01-01 20:28:08.336746700 -0600
+@@ -51,7 +51,11 @@ void PluginManager::findPlugins()
+ #else
+ 	const path plugins_folder = string(PRIVATELIBDIR) + "/plugins/";
+ #endif
++#ifdef __CYGWIN__
++	const string pattern ( "cyglightspark+[A-Za-z]+plugin.*" );
++#else
+ 	const string pattern ( "liblightspark+[A-Za-z]+plugin.*" );
++#endif
+ 
+ 	//Stuff used by/for pcre
+ 	const char* patternError;
+--- origsrc/lightspark-0.5.3/src/CMakeLists.txt	2011-12-01 07:40:18.000000000 -0600
++++ src/lightspark-0.5.3/src/CMakeLists.txt	2012-01-01 16:53:43.227736700 -0600
+@@ -77,7 +77,7 @@ SET(LIBSPARK_SOURCES
+   scripting/toplevel/Vector.cpp
+   scripting/class.cpp
+   scripting/toplevel/toplevel.cpp)
+-IF(MINGW)
++IF(MINGW OR CYGWIN)
+   SET(LIBSPARK_SOURCES ${LIBSPARK_SOURCES} platforms/slowpaths_generic.cpp)
+ ELSE()
+   IF(${i386})
+@@ -89,7 +89,7 @@ ELSE()
+   ELSE()
+     SET(LIBSPARK_SOURCES ${LIBSPARK_SOURCES} platforms/slowpaths_generic.cpp)
+   ENDIF(${i386})
+-ENDIF(MINGW)
++ENDIF(MINGW OR CYGWIN)
+ 
+ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src)
+ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src/scripting)
+@@ -128,7 +128,7 @@ ENDIF(ENABLE_GLES2)
+ 
+ PACK_LIBRARY(spark)
+ #We have to use LIBRARY on linux and RUNTIME on win32
+-INSTALL(TARGETS spark RUNTIME DESTINATION ${PRIVATELIBDIR} LIBRARY DESTINATION ${PRIVATELIBDIR})
++INSTALL(TARGETS spark RUNTIME DESTINATION bin LIBRARY DESTINATION ${PRIVATELIBDIR})
+ 
+ # lightspark executable target
+ IF(COMPILE_LIGHTSPARK)
