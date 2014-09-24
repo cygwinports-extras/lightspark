@@ -1,7 +1,7 @@
 inherit cmake
 
 NAME="lightspark"
-VERSION=0.5.3
+VERSION=0.7.2
 RELEASE=1
 CATEGORY="Video"
 SUMMARY="Flash player"
@@ -9,7 +9,11 @@ DESCRIPTION="Lightspark is an LGPLv3 licensed Flash player and browser plugin
 written in C++/C that runs on Linux. It aims to support Adobe's newer Flash
 formats and AVM2 virtual machine."
 HOMEPAGE="http://lightspark.github.com/"
-SRC_URI="http://launchpad.net/lightspark/trunk/${P}/+download/${P}.tar.gz"
-PATCH_URI="0.5.3-cygwin.patch"
+SRC_URI="http://launchpad.net/lightspark/trunk/${NAME}-${VERSION}/+download/${NAME}-${VERSION}.tar.gz"
+PATCH_URI="
+	0.7.2-cygwin.patch
+	0.7.2-cmake-freetype.patch
+	0.7.2-cmake-llvm-config.patch
+"
 
 CYGCMAKE_ARGS="-DCOMPILE_PLUGIN=YES -DENABLE_RTMP=YES -DPLUGIN_DIRECTORY=/usr/lib/mozilla/plugins"

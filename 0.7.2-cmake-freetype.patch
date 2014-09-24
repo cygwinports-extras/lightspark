@@ -1,0 +1,33 @@
+--- origsrc/lightspark-0.7.2/conf/FindFreetype.cmake	2013-03-16 06:19:18.000000000 -0500
++++ src/lightspark-0.7.2/conf/FindFreetype.cmake	2014-09-23 21:50:39.724953800 -0500
+@@ -44,7 +44,7 @@
+ FIND_PATH(FREETYPE_INCLUDE_DIR_ft2build ft2build.h 
+   HINTS
+   $ENV{FREETYPE_DIR}
+-  PATH_SUFFIXES include
++  PATH_SUFFIXES freetype2
+   PATHS
+   /usr/local/X11R6/include
+   /usr/local/X11/include
+@@ -67,6 +67,21 @@ FIND_PATH(FREETYPE_INCLUDE_DIR_freetype2
+   PATH_SUFFIXES freetype2
+ )
+ 
++IF(NOT FREETYPE_INCLUDE_DIR_freetype2)
++FIND_PATH(FREETYPE_INCLUDE_DIR_freetype2 config/ftheader.h 
++  HINTS
++  $ENV{FREETYPE_DIR}/include/freetype2
++  PATHS
++  /usr/local/X11R6/include
++  /usr/local/X11/include
++  /usr/X11/include
++  /sw/include
++  /opt/local/include
++  /usr/freeware/include
++  PATH_SUFFIXES freetype2
++)
++ENDIF()
++
+ FIND_LIBRARY(FREETYPE_LIBRARY
+   NAMES freetype libfreetype freetype219 freetype241MT_D
+   HINTS

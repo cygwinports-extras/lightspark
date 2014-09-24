@@ -1,0 +1,11 @@
+--- origsrc/lightspark-0.7.2/conf/FindLLVM.cmake	2013-03-16 06:19:18.000000000 -0500
++++ src/lightspark-0.7.2/conf/FindLLVM.cmake	2014-09-23 21:42:58.692935100 -0500
+@@ -91,7 +91,7 @@ else (LLVM_INCLUDE_DIR)
+   endif(LLVM_CONFIG_EXECUTABLE)
+ 
+   MACRO(FIND_LLVM_LIBS LLVM_CONFIG_EXECUTABLE _libname_ LIB_VAR OBJECT_VAR)
+-    exec_program( ${LLVM_CONFIG_EXECUTABLE} ARGS --libs ${_libname_}  OUTPUT_VARIABLE ${LIB_VAR} )
++    exec_program( ${LLVM_CONFIG_EXECUTABLE} ARGS --libs OUTPUT_VARIABLE ${LIB_VAR} )
+     STRING(REGEX MATCHALL "[^ ]*[.]o[ $]"  ${OBJECT_VAR} ${${LIB_VAR}})
+     SEPARATE_ARGUMENTS(${OBJECT_VAR})
+     STRING(REGEX REPLACE "[^ ]*[.]o[ $]" ""  ${LIB_VAR} ${${LIB_VAR}})
